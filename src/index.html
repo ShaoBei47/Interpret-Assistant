@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interpret-Assistant | 英语影子跟读</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div id="app" class="app-container">
+        <header>
+            <h1>Shadowing Practice</h1>
+            <div id="status-bar"></div>
+        </header>
+
+        <main>
+            <section id="transcript-container" class="panel"></section>
+
+            <section class="controls-panel">
+                <div id="recording-control"></div>
+                
+                <div id="audio-player-control"></div>
+            </section>
+
+            <section id="score-result-panel" class="panel hidden">
+                <h2>练习结果</h2>
+                <div id="score-details"></div>
+            </section>
+        </main>
+    </div>
+
+    <script type="module" src="../js/main.js"></script>
+</body>
+</html>
