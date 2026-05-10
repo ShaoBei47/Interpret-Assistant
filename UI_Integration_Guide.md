@@ -384,5 +384,226 @@ TranscriptDisplay: setTranscript(text) / highlightWord(idx) / highlightSentence(
 
 🚀 现在可以正式进入 **Day2并行开发阶段**
 
+---
 
+## ✅ 成员5 — Days 2~4 并行开发完成
 
+### 📋 完成内容
+
+| 文件 | 功能 | 状态 |
+|------|------|------|
+| `src/storage/LocalStorage.js` | 用户设置、练习记录读写、音频元数据缓存（localStorage） | ✅ 完整实现 |
+| `src/storage/IndexedDBStorage.js` | 音频 Blob 持久化存储（IndexedDB） | ✅ 完整实现 |
+| `js/main.js` | ShadowingApp 主控集成类 | ✅ 完整实现 |
+| `start.bat` | 本地开发服务器快捷启动（可选） | ✅ 辅助脚本 |
+
+---
+
+### 1️⃣ 存储模块 — LocalStorage
+
+📁 `src/storage/LocalStorage.js`
+
+#### 方法说明
+
+| 方法 | 参数 | 返回值 | 说明 |
+|------|------|--------|------|
+| `saveUserSettings` | `settings: UserSettings` | `void` | 保存用户配置（language, autoPlay） |
+| `getUserSettings` | — | `UserSettings` | 读取配置，不存在返回默认 `{language:'en-US', autoPlay:true}` |
+| `savePracticeRecord` | `record: PracticeRecord` | `void` | 追加练习记录到数组 |
+| `getPracticeRecords` | — | `PracticeRecord[]` | 返回全部记录，无数据时返回 `[]` |
+| `cacheAudioFile` | `id, blob` | `Promise<void>` | 提取时长 → 存元数据索引（**不存 Blob 本身**） |
+| `getCachedAudioFile` | `id` | `Promise<object\|null>` | 按 id 查询音频元数据 |
+| `deleteCachedAudioFile` | `id` | `void` | 从索引中移除 |
+| `clearAll` | — | `void` | 清除所有 `ia_*` 存储（测试用） |
+
+#### ⚠️ 音频缓存策略（重要）
+
+**方案B（已采用）：**
+- **localStorage**：仅存音频元数据索引 `{ id, name, duration, indexedDBKey, cachedAt }`
+- **IndexedDB**：由 `IndexedDBStorage` 管理实际的 Blob 持久化
+- 原因：localStorage 有 5MB 上限且只能存字符串，Blob 转为 base64 后体积膨胀严重
+
+---
+
+### 2️⃣ 存储模块 — IndexedDBStorage
+
+📁 `src/storage/IndexedDBStorage.js`
+
+#### 方法说明
+
+| 方法 | 参数 | 返回值 | 说明 |
+|------|------|--------|------|
+| `saveAudioBlob` | `id, blob` | `Promise<void>` | 存入 `audio_blobs` 对象存储 |
+| `getAudioBlob` | `id` | `Promise<Blob\|null>` | 读取 Blob，不存在返回 null |
+| `deleteAudioBlob` | `id` | `Promise<void>` | 删除指定记录 |
+| `getAllAudioKeys` | — | `Promise<string[]>` | 获取所有已存 ID 列表 |
+
+#### 数据库结构
+
+```
+数据库名: InterpretAssistantDB (v1)
+对象存储: audio_blobs (keyPath: 'id')
+记录格式: { id: string, blob: Blob, createdAt: number }
+```
+
+#### 错误处理
+- ✅ `window.indexedDB` 可用性检测（不支持的浏览器给出提示）
+- ✅ 所有操作 try-catch 包裹（操作失败不抛未捕获异常）
+- ✅ 每次操作独立开闭连接（不持有长连接）
+
+---
+
+### 3️⃣ 主控集成 — ShadowingApp（核心）
+
+📁 `js/main.js`
+
+这是成员5最关键的输出，负责**编排所有模块**。类结构如下：
+
+```js
+export class ShadowingApp {
+    constructor() // 初始化所有模块引用 + 状态
+    async init()  // 挂载UI → 动态加载模块 → 绑定事件
+    async startPractice(audioUrl, transcript)  // 开始练习
+    async endPractice()  // 结束练习 → 评分 → 保存记录
+    getProgress()  // 返回学习进度统计
+}
+```
+
+#### 数据流设计
+
+```
+用户操作 → UI事件 → ShadowingApp 处理 → 逻辑模块 → 存储/UI更新
+
+例：点击录音按钮 →
+  RecordingButton 触发 onRecordingStart →
+  ShadowingApp._handleRecordingStart() →
+  speechRecognizer?.startRecognition() (成员2)
+```
+
+#### 事件绑定映射
+
+| UI 组件 | 事件 | main.js 处理函数 | 下游调用 |
+|---------|------|-----------------|---------|
+| RecordingButton | `onRecordingStart` | `_handleRecordingStart` | `speechRecognizer?.startRecognition()` |
+| RecordingButton | `onRecordingStop` | `_handleRecordingStop` | `speechRecognizer?.stopRecognition()` → `endPractice()` |
+| AudioPlayer | `onTimeUpdate` | `_handleTimeUpdate` | `transcriptDisplay?.highlightWord()` |
+| AudioPlayer | `onEnded` | `_handleAudioEnded` | `endPractice()` (仅活跃练习时) |
+
+#### 动态加载（容错设计）
+
+其他成员模块通过 **动态 `import()`** 加载，而非静态 `import`：
+
+```js
+// 静态 import（仅限有有效导出的模块）
+import { AudioPlayer } from '../src/ui/AudioPlayer.js';
+import { LocalStorage } from '../src/storage/LocalStorage.js';
+
+// 动态 import（模块未实现时不阻塞）
+try {
+    const mod = await import('../src/audio/AudioManager.js');
+    this.audioManager = new mod.AudioManager();
+} catch (e) {
+    console.warn('AudioManager 未就绪 — 功能暂不可用');
+}
+```
+
+**好处**：其他成员文件为空时，main.js 正常运行，仅对应功能降级。等他们实现后**无需修改 main.js** 即可自动生效。
+
+#### 自动初始化
+
+```js
+// index.html 加载后自动执行（无需手动调用）
+window.addEventListener('DOMContentLoaded', () => {
+    window.app = new ShadowingApp();
+    window.app.init();
+});
+```
+
+---
+
+### 🔗 对其他成员的对接说明
+
+#### 👉 给成员1（AudioManager）
+
+ShadowingApp 已通过动态 import 加载你的模块。你只需：
+1. 在 `src/audio/AudioManager.js` 中实现并导出 `AudioManager` 类
+2. 实现 `playAudio(url)`、`pauseAudio()`、`stopAudio()` 等方法
+3. **main.js 不需改任何代码**，你的模块会被自动发现和使用
+
+```js
+// 你只要这样导出，main.js 自动生效
+export class AudioManager {
+    playAudio(url) { /* 你的实现 */ }
+    pauseAudio() { /* 你的实现 */ }
+    // ...
+}
+```
+
+#### 👉 给成员2（SpeechRecognizer）
+
+同理，实现并导出 `SpeechRecognizer` 类即可：
+
+```js
+export class SpeechRecognizer {
+    startRecognition() { /* ... */ }
+    stopRecognition() { /* ... */ }
+    // ...
+}
+```
+
+额外说明：当前 `_handleRecordingStop` 无法获取录音 Blob（RecordingButton 未暴露 getBlob），需要你补齐主控中的录音数据链路。
+
+#### 👉 给成员3（PronunciationScorer）
+
+```js
+export class PronunciationScorer {
+    scorePronunciation(originalTranscript, userTranscript, userAudioBlob) {
+        // 返回 ScoreResult 格式
+    }
+}
+```
+
+⚠️ 必须遵守 `src/types/interfaces.js` 中 `ScoreResult` 的结构！
+
+---
+
+### 🧪 自检方法
+
+在浏览器控制台可执行以下测试：
+
+```js
+// 完整自检（所有模块状态诊断）
+window.app._runSelfTest();
+
+// 单独测试存储
+const ls = new LocalStorage();
+ls.saveUserSettings({ language: 'zh-CN', autoPlay: false });
+console.log(ls.getUserSettings());
+
+await new IndexedDBStorage()._runSelfTest();
+```
+
+---
+
+### 🚧 当前状态总结
+
+```
+✅ 成员5（已完成）:
+   ├── src/storage/LocalStorage.js       — 设置/记录/元数据缓存
+   ├── src/storage/IndexedDBStorage.js   — 音频 Blob 持久化
+   └── js/main.js                        — ShadowingApp 主控集成
+
+⏳ 成员1（未完成）:
+   └── src/audio/AudioManager.js         — 空白文件，等待实现
+
+⏳ 成员2（未完成）:
+   └── src/speech/SpeechRecognizer.js    — 空白文件，等待实现
+
+⏳ 成员3（未完成）:
+   └── src/scoring/PronunciationScorer.js — 空白文件，等待实现
+
+⏳ 成员4（未完成 Day2）:
+   ├── src/ui/AudioPlayer.js             — 骨架，等待真实 UI
+   ├── src/ui/TranscriptDisplay.js       — 骨架，等待高亮/滚动
+   └── css/style.css                     — 空白，等待样式
+```
