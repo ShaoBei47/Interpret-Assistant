@@ -259,6 +259,15 @@ header h1 {
     border: none;
 }
 
+.player-progress input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    cursor: pointer;
+    border: none;
+}
+
 .player-time {
     font-size: 0.8rem;
     color: var(--color-text-secondary);

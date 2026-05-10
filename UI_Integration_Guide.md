@@ -265,9 +265,10 @@ scorePronunciation(...) => ScoreResult
 - 进度条拖拽：拖动slider触发seekTo，同步跳转
 - 内建轮询：每200ms触发 onTimeUpdate 回调，主应用可借此读取真实进度
 - `syncProgress(currentTime, duration)`：供主应用将 AudioManager 的真实进度同步到UI
+- `onPlay` / `onPause` / `onSeek` / `onTimeUpdate` / `onEnded` 回调：主应用通过回调感知用户操作
 
 **对接方式不变：**
-- 主应用通过 `audioPlayer.onTimeUpdate(t => {...})` 监听用户操作
+- 主应用通过 `audioPlayer.onPlay(() => audioManager.playAudio(url))` 等监听用户操作
 - 主应用调用 `audioPlayer.syncProgress(cur, dur)` 更新UI显示
 
 ---

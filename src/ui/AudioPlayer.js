@@ -11,6 +11,9 @@ export class AudioPlayer {
         this._isPlaying = false;
         this._onTimeUpdate = null;
         this._onEnded = null;
+        this._onPlay = null;
+        this._onPause = null;
+        this._onSeek = null;
         this._progressInterval = null;
         this.render();
     }
@@ -109,6 +112,7 @@ export class AudioPlayer {
         this._playBtn.textContent = '⏸';
         this._playBtn.classList.add('playing');
         this._startProgressPolling();
+        if (this._onPlay) this._onPlay();
     }
 
     pause() {
@@ -116,6 +120,7 @@ export class AudioPlayer {
         this._playBtn.textContent = '▶';
         this._playBtn.classList.remove('playing');
         this._stopProgressPolling();
+        if (this._onPause) this._onPause();
     }
 
     stop() {
@@ -131,6 +136,7 @@ export class AudioPlayer {
     seekTo(time) {
         this._currentTime = time;
         this._updateTimeDisplay();
+        if (this._onSeek) this._onSeek(time);
     }
 
     getCurrentTime() { return this._currentTime; }
@@ -138,4 +144,7 @@ export class AudioPlayer {
     // 事件回调注册
     onTimeUpdate(callback) { this._onTimeUpdate = callback; }
     onEnded(callback) { this._onEnded = callback; }
+    onPlay(callback) { this._onPlay = callback; }
+    onPause(callback) { this._onPause = callback; }
+    onSeek(callback) { this._onSeek = callback; }
 }

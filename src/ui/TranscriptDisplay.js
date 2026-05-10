@@ -35,9 +35,9 @@ export class TranscriptDisplay {
             const wordParts = trimmed.match(/[\w']+|[^\w\s]+/g) || [trimmed];
             const wordIndices = [];
 
-            wordParts.forEach(() => {
+            wordParts.forEach(word => {
                 wordIndices.push(wordGlobalIndex);
-                this._words.push(wordParts[wordIndices.length - 1]);
+                this._words.push(word);
                 wordGlobalIndex++;
             });
 
@@ -59,8 +59,11 @@ export class TranscriptDisplay {
             const sentenceWords = this._words.slice(sent.startWord, sent.endWord + 1);
             const wordSpans = sentenceWords.map((w, wi) => {
                 const globalIdx = sent.startWord + wi;
-                return `<span class="word" data-word-index="${globalIdx}">${this._escapeHtml(w)}</span>`;
-            }).join(' ');
+                // 标点符号前不加空格，普通单词之间加空格
+                const isPunct = /^[^\w\s]+$/.test(w);
+                const spaceBefore = (wi > 0 && !isPunct) ? ' ' : '';
+                return `${spaceBefore}<span class="word" data-word-index="${globalIdx}">${this._escapeHtml(w)}</span>`;
+            }).join('');
             return `<span class="sentence" data-sentence-index="${si}">${wordSpans}</span>`;
         }).join(' ');
 
