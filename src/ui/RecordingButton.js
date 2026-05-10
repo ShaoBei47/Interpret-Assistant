@@ -2,36 +2,82 @@ export class RecordingButton {
     constructor(container) {
         this.container = container;
         this.recording = false;
+        this._recordingStartTime = 0;
+        this._durationInterval = null;
+        this._onRecordingStart = null;
+        this._onRecordingStop = null;
         this.render();
     }
 
     render() {
-        // TODO: 成员4 Day 2任务 - 渲染录音按钮DOM (麦克风图标、脉冲动画)
-        this.container.innerHTML = `<button class="record-btn">开始录音</button>`;
-        this.btn = this.container.querySelector('.record-btn');
-        this.btn.addEventListener('click', () => this.toggleRecording());
+        this.container.innerHTML = `
+            <div class="recording-control-wrapper">
+                <button class="record-btn" title="开始/停止录音">
+                    <svg class="record-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 14a3 3 0 003-3V5a3 3 0 10-6 0v6a3 3 0 003 3z"/>
+                        <path d="M18 10v1a6 6 0 01-12 0v-1" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"/>
+                        <line x1="12" y1="18" x2="12" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <line x1="9" y1="22" x2="15" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+                <span class="record-duration">00:00</span>
+            </div>
+        `;
+
+        this._btn = this.container.querySelector('.record-btn');
+        this._durationEl = this.container.querySelector('.record-duration');
+
+        this._btn.addEventListener('click', () => this.toggleRecording());
     }
 
     toggleRecording() {
         if (this.recording) {
-            this.stopRecordingUI();
-            if (this._onRecordingStop) this._onRecordingStop(); // 触发外部回调
+            this._stopRecording();
         } else {
-            this.startRecordingUI();
-            if (this._onRecordingStart) this._onRecordingStart(); // 触发外部回调
+            this._startRecording();
         }
     }
 
-    startRecordingUI() {
+    _startRecording() {
         this.recording = true;
-        this.btn.innerText = "停止录音";
-        this.btn.classList.add('recording-active');
+        this._recordingStartTime = Date.now();
+        this._btn.classList.add('recording-active');
+        this._updateDuration();
+        this._durationInterval = setInterval(() => this._updateDuration(), 200);
+        if (this._onRecordingStart) this._onRecordingStart();
     }
 
-    stopRecordingUI() {
+    _stopRecording() {
         this.recording = false;
-        this.btn.innerText = "开始录音";
-        this.btn.classList.remove('recording-active');
+        this._btn.classList.remove('recording-active');
+        clearInterval(this._durationInterval);
+        this._durationInterval = null;
+        if (this._onRecordingStop) this._onRecordingStop();
+    }
+
+    _updateDuration() {
+        const elapsed = Math.floor((Date.now() - this._recordingStartTime) / 1000);
+        const m = Math.floor(elapsed / 60);
+        const s = elapsed % 60;
+        this._durationEl.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    // --- 暴露给主应用的接口 ---
+
+    isRecording() { return this.recording; }
+
+    getRecordingTime() {
+        if (!this.recording) return 0;
+        return Math.floor((Date.now() - this._recordingStartTime) / 1000);
+    }
+
+    /** 重置UI状态（录音完成后由主应用调用） */
+    reset() {
+        this.recording = false;
+        this._btn.classList.remove('recording-active');
+        clearInterval(this._durationInterval);
+        this._durationInterval = null;
+        this._durationEl.textContent = '00:00';
     }
 
     // 事件回调注册

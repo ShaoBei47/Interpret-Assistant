@@ -240,18 +240,102 @@ scorePronunciation(...) => ScoreResult
 
 ---
 
-## 🚧 当前未完成部分（Day2任务）
-
-我接下来会完成：
+## 🚧 当前未完成部分（Day2任务）→ ✅ 已完成
 
 ### UI增强
-- 播放器真实UI（进度条、时间显示）
-- 录音动画（麦克风脉冲）
-- 文本逐词高亮
+- ✅ 播放器真实UI（进度条、时间显示）
+- ✅ 录音动画（麦克风脉冲）
+- ✅ 文本逐词高亮
 
 ### 交互优化
-- 自动滚动
-- 响应式布局（移动端适配）
+- ✅ 自动滚动
+- ✅ 响应式布局（移动端适配）
+
+---
+
+## ✅ Day2 完成记录
+
+### 1️⃣ AudioPlayer.js（播放器UI）
+
+📁 文件位置：`src/ui/AudioPlayer.js`
+
+**已完成：**
+- 真实DOM渲染：播放/暂停按钮 + 进度条(range) + 时间显示(00:00 / 00:00)
+- 按钮交互：点击切换播放/暂停，停止按钮重置进度
+- 进度条拖拽：拖动slider触发seekTo，同步跳转
+- 内建轮询：每200ms触发 onTimeUpdate 回调，主应用可借此读取真实进度
+- `syncProgress(currentTime, duration)`：供主应用将 AudioManager 的真实进度同步到UI
+
+**对接方式不变：**
+- 主应用通过 `audioPlayer.onTimeUpdate(t => {...})` 监听用户操作
+- 主应用调用 `audioPlayer.syncProgress(cur, dur)` 更新UI显示
+
+---
+
+### 2️⃣ RecordingButton.js（录音按钮）
+
+📁 文件位置：`src/ui/RecordingButton.js`
+
+**已完成：**
+- SVG麦克风图标内嵌（`record-icon`），录音时图标变白
+- 脉冲动画：录音中红色波纹扩散 `pulse-ring` 动画（CSS `@keyframes`）
+- 录音时长计数器：按钮旁实时显示 `MM:SS`，200ms刷新
+- `reset()`：录音完成后主应用调用，重置UI到初始状态
+
+**对接方式不变：**
+- `onRecordingStart` / `onRecordingStop` 回调机制保持不变
+- 成员2在 main.js 中监听按钮事件调用自己的录音逻辑
+
+---
+
+### 3️⃣ TranscriptDisplay.js（文本展示）
+
+📁 文件位置：`src/ui/TranscriptDisplay.js`
+
+**已完成：**
+- `_parseText()`：自动按句末标点(.!?)拆分为句子，每个单词包裹 `<span class="word" data-word-index="N">`
+- 句子索引与单词全局索引的映射关系（`_sentences[i].startWord / endWord`）
+- `highlightWord(wordIndex)`：精准高亮单个词（`.highlight-active`，黄色背景+蓝色outline），自动滚动到视口中央
+- `highlightSentence(sentenceIndex)`：高亮整句（`.highlight`），自动清除旧高亮
+- `scrollToCurrent()`：自动滚动到当前高亮的词或句子
+- XSS 防护：`_escapeHtml()` 对所有文本做转义处理
+- `setTranscript()` 重新设置文本时自动重建索引
+
+**对接方式不变：**
+- 成员3/5传入文本内容
+- 主控调用高亮方法实现播放同步
+
+---
+
+### 4️⃣ style.css（响应式样式）
+
+📁 文件位置：`css/style.css`
+
+**已完成：**
+- CSS 变量体系：主题色、背景、圆角、阴影、过渡时间
+- 组件样式全覆盖：`.audio-player-ui` / `.record-btn` / `.transcript-box` / `.score-row` 等
+- 录音脉冲动画：`@keyframes pulse-ring` 红色波纹扩散
+- 高亮样式：`.word.highlight`（句子级淡黄）、`.word.highlight-active`（词级金色+蓝色outline）
+- 三档响应式断点：
+  - **PC**（>768px）：横向控件排列，max-width 800px居中
+  - **平板**（≤768px）：控件纵向堆叠，减小间距
+  - **手机**（≤480px）：进一步缩小按钮、字体、面板padding
+
+---
+
+### 对外接口兼容性
+
+所有对外暴露的方法签名与 Day 1 定义完全一致，其他成员无需任何调整：
+
+```
+AudioPlayer:       play() / pause() / stop() / seekTo(time) / getCurrentTime()
+                   onTimeUpdate(cb) / onEnded(cb) / syncProgress(cur, dur)
+
+RecordingButton:   onRecordingStart(cb) / onRecordingStop(cb)
+                   isRecording() / getRecordingTime() / reset()
+
+TranscriptDisplay: setTranscript(text) / highlightWord(idx) / highlightSentence(idx) / scrollToCurrent()
+```
 
 ---
 

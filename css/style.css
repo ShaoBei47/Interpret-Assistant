@@ -1,0 +1,378 @@
+/* ===========================
+   Interpret-Assistant 样式
+   成员4 - UI/UX
+   =========================== */
+
+/* --- CSS 变量 --- */
+:root {
+    --color-primary: #4A90D9;
+    --color-primary-dark: #357ABD;
+    --color-danger: #E74C3C;
+    --color-danger-dark: #C0392B;
+    --color-success: #27AE60;
+    --color-bg: #F5F7FA;
+    --color-surface: #FFFFFF;
+    --color-text: #2C3E50;
+    --color-text-secondary: #7F8C8D;
+    --color-border: #E0E4E8;
+    --color-highlight: #FFF3CD;
+    --color-highlight-active: #FFD54F;
+    --radius: 8px;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    --transition: 0.2s ease;
+}
+
+/* --- 基础重置 --- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* --- 整体布局 --- */
+.app-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 16px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-height: 100vh;
+}
+
+header {
+    text-align: center;
+    padding: 16px 0 8px;
+}
+
+header h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    letter-spacing: 0.02em;
+}
+
+#status-bar {
+    margin-top: 6px;
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    min-height: 1.4em;
+}
+
+/* --- 面板 --- */
+.panel {
+    background: var(--color-surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px;
+}
+
+.panel.hidden { display: none; }
+
+/* --- 文本展示区 --- */
+#transcript-container {
+    min-height: 200px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.transcript-box {
+    font-size: 1.15rem;
+    line-height: 2;
+    word-spacing: 0.15em;
+}
+
+.transcript-box .word {
+    display: inline;
+    padding: 1px 3px;
+    border-radius: 3px;
+    transition: background var(--transition);
+    cursor: default;
+}
+
+.transcript-box .word.highlight {
+    background: var(--color-highlight);
+}
+
+.transcript-box .word.highlight-active {
+    background: var(--color-highlight-active);
+    outline: 2px solid var(--color-primary);
+    outline-offset: 1px;
+}
+
+.transcript-box .sentence {
+    display: inline;
+    transition: background var(--transition);
+    border-radius: 3px;
+    padding: 2px 0;
+}
+
+.transcript-box .sentence.highlight {
+    background: var(--color-highlight);
+}
+
+/* --- 控制区 --- */
+.controls-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    background: var(--color-surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px 24px;
+    flex-wrap: wrap;
+}
+
+/* --- 录音按钮 --- */
+#recording-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.record-btn {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 3px solid var(--color-danger);
+    background: var(--color-surface);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    transition: all var(--transition);
+    position: relative;
+    flex-shrink: 0;
+}
+
+.record-btn:hover {
+    background: #fdf0f0;
+    transform: scale(1.05);
+}
+
+.record-btn.recording-active {
+    background: var(--color-danger);
+    border-color: var(--color-danger-dark);
+    box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.5);
+    animation: pulse-ring 1.2s ease-out infinite;
+}
+
+.record-btn.recording-active:hover {
+    background: var(--color-danger-dark);
+}
+
+.record-icon {
+    width: 24px;
+    height: 24px;
+    fill: var(--color-danger);
+    transition: fill var(--transition);
+}
+
+.record-btn.recording-active .record-icon {
+    fill: #fff;
+}
+
+.record-duration {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    min-width: 48px;
+    font-variant-numeric: tabular-nums;
+}
+
+@keyframes pulse-ring {
+    0%   { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.5); }
+    70%  { box-shadow: 0 0 0 16px rgba(231, 76, 60, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+}
+
+/* --- 播放器 --- */
+#audio-player-control {
+    flex: 1;
+    min-width: 250px;
+}
+
+.audio-player-ui {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.player-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--color-primary);
+    background: var(--color-surface);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: all var(--transition);
+    flex-shrink: 0;
+    color: var(--color-primary);
+}
+
+.player-btn:hover {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+.player-btn.playing {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+.player-progress {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.player-progress input[type="range"] {
+    flex: 1;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--color-border);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+}
+
+.player-progress input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    cursor: pointer;
+    border: none;
+}
+
+.player-time {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    min-width: 80px;
+    text-align: center;
+}
+
+/* --- 评分面板 --- */
+#score-result-panel h2 {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+    color: var(--color-primary);
+}
+
+#score-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.score-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--color-bg);
+    border-radius: 6px;
+}
+
+.score-label { font-weight: 600; }
+
+.score-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.score-feedback {
+    margin-top: 4px;
+}
+
+.score-feedback li {
+    margin-left: 20px;
+    margin-bottom: 4px;
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+}
+
+/* ===========================
+   响应式
+   =========================== */
+
+/* 平板 (<= 768px) */
+@media (max-width: 768px) {
+    .app-container {
+        padding: 12px;
+        gap: 14px;
+    }
+
+    header h1 { font-size: 1.35rem; }
+
+    .controls-panel {
+        flex-direction: column;
+        gap: 16px;
+        padding: 16px;
+    }
+
+    #audio-player-control {
+        width: 100%;
+    }
+
+    #transcript-container {
+        max-height: 300px;
+    }
+
+    .transcript-box { font-size: 1.05rem; }
+}
+
+/* 手机 (<= 480px) */
+@media (max-width: 480px) {
+    .app-container {
+        padding: 8px;
+        gap: 10px;
+    }
+
+    header h1 { font-size: 1.15rem; }
+
+    .panel { padding: 14px; }
+
+    .controls-panel {
+        padding: 12px;
+        gap: 12px;
+    }
+
+    .record-btn {
+        width: 56px;
+        height: 56px;
+    }
+
+    .player-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 0.85rem;
+    }
+
+    #transcript-container {
+        max-height: 240px;
+        min-height: 140px;
+    }
+
+    .transcript-box {
+        font-size: 0.95rem;
+        line-height: 1.8;
+    }
+}
