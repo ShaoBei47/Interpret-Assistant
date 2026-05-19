@@ -51,7 +51,12 @@ export class TranscriptDisplay {
 
     render() {
         if (!this.text || !this.text.trim()) {
-            this.container.innerHTML = '<div class="transcript-box">等待文本加载...</div>';
+            this.container.innerHTML = `
+                <div class="transcript-empty">
+                    <span class="transcript-empty-icon">📖</span>
+                    <span>等待文本加载...</span>
+                    <span class="transcript-empty-hint">启动练习后原文将显示在此处</span>
+                </div>`;
             return;
         }
 
@@ -62,7 +67,9 @@ export class TranscriptDisplay {
                 // 标点符号前不加空格，普通单词之间加空格
                 const isPunct = /^[^\w\s]+$/.test(w);
                 const spaceBefore = (wi > 0 && !isPunct) ? ' ' : '';
-                return `${spaceBefore}<span class="word" data-word-index="${globalIdx}">${this._escapeHtml(w)}</span>`;
+                // 交错延迟：每个词延迟 25ms，最多 1.5s
+                const delay = Math.min(globalIdx * 0.025, 1.5);
+                return `${spaceBefore}<span class="word animate-in" data-word-index="${globalIdx}" style="animation-delay:${delay.toFixed(2)}s">${this._escapeHtml(w)}</span>`;
             }).join('');
             return `<span class="sentence" data-sentence-index="${si}">${wordSpans}</span>`;
         }).join(' ');

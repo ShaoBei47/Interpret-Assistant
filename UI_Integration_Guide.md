@@ -522,6 +522,11 @@ export class ShadowingApp {
 | RecordingButton | `onRecordingStop`  | `_handleRecordingStop`  | `speechRecognizer?.stopRecognition()` → `endPractice()` |
 | AudioPlayer     | `onTimeUpdate`     | `_handleTimeUpdate`     | `transcriptDisplay?.highlightWord()`                    |
 | AudioPlayer     | `onEnded`          | `_handleAudioEnded`     | `endPractice()` (仅活跃练习时)                                |
+| AudioPlayer     | `onPlay`           | *(待成员5对接)*             | `audioManager?.playAudio(url)`                          |
+| AudioPlayer     | `onPause`          | *(待成员5对接)*             | `audioManager?.pauseAudio()`                            |
+| AudioPlayer     | `onSeek`           | *(待成员5对接)*             | `audioManager?.seekTo(time)`                            |
+
+> 注：`onPlay`/`onPause`/`onSeek` 为成员4 Day2 补充的回调，成员5需在 main.js 中补上对应的 `audioManager` 调用以完成完整的播放控制链路。同时需注册 `audioManager.onTimeUpdate` → `audioPlayer.syncProgress()` 以同步真实播放进度到 UI。
 
 #### 动态加载（容错设计）
 
@@ -620,26 +625,42 @@ await new IndexedDBStorage()._runSelfTest();
 
 ***
 
-### 🚧 当前状态总结
+### 🚧 当前状态总结 → ✅ 全员完成
 
 ```
+✅ 成员1（已完成）:
+   └── src/audio/AudioManager.js              — 播放控制 / 录音 / 音频可视化
+
+✅ 成员2（已完成）:
+   └── src/speech/SpeechRecognizer.js         — 实时识别 / 批量识别 / 自动重启
+
+✅ 成员3（已完成）:
+   └── src/scoring/PronunciationScorer.js     — 文本相似度 / 音频特征 / 综合评分
+
+✅ 成员4（已完成 Day1 + Day2）:
+   ├── src/types/interfaces.js                — 全局接口约定（含各模块完整 API）
+   ├── src/ui/AudioPlayer.js                  — 播放器 UI（按钮/进度条/时间/回调）
+   ├── src/ui/RecordingButton.js              — 录音按钮（SVG图标/脉冲动画/时长）
+   ├── src/ui/TranscriptDisplay.js            — 文本展示（分词/分句/高亮/滚动）
+   ├── src/index.html                         — 页面结构（含波形可视化区域）
+   └── css/style.css                          — 响应式样式（PC/平板/手机）
+
 ✅ 成员5（已完成）:
-   ├── src/storage/LocalStorage.js       — 设置/记录/元数据缓存
-   ├── src/storage/IndexedDBStorage.js   — 音频 Blob 持久化
-   └── js/main.js                        — ShadowingApp 主控集成
-
-⏳ 成员1（未完成）:
-   └── src/audio/AudioManager.js         — 空白文件，等待实现
-
-⏳ 成员2（未完成）:
-   └── src/speech/SpeechRecognizer.js    — 空白文件，等待实现
-
-⏳ 成员3（未完成）:
-   └── src/scoring/PronunciationScorer.js — 空白文件，等待实现
-
-⏳ 成员4（未完成 Day2）:
-   ├── src/ui/AudioPlayer.js             — 骨架，等待真实 UI
-   ├── src/ui/TranscriptDisplay.js       — 骨架，等待高亮/滚动
-   └── css/style.css                     — 空白，等待样式
+   ├── src/storage/LocalStorage.js            — 设置/记录/元数据缓存
+   ├── src/storage/IndexedDBStorage.js        — 音频 Blob 持久化
+   └── js/main.js                             — ShadowingApp 主控集成
 ```
+
+---
+
+## ✅ 成员4 — Day2 最终补充（全部模块实现后）
+
+其他成员模块全部实现后，成员4完成以下收尾工作：
+
+| 变更 | 文件 | 说明 |
+|------|------|------|
+| 接口文档更新 | `src/types/interfaces.js` | 补全所有模块已实现方法的完整 API 文档 |
+| 评分面板样式对齐 | `css/style.css` | 新增 `.score-overview` / `.score-main` / `.score-breakdown` / `.feedback-list` 等，与 main.js `_displayScore()` 实际 DOM 对齐 |
+| 波形可视化区域 | `src/index.html` + `css/style.css` | 新增 `#waveform-container` + `#waveform-canvas`，供 main.js 使用 AudioManager.getWaveformData() 绘制波形 |
+| 交接文档更新 | `UI_Integration_Guide.md` | 更新全员完成状态 |
 

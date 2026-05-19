@@ -11,7 +11,7 @@ export class RecordingButton {
 
     render() {
         this.container.innerHTML = `
-            <div class="recording-control-wrapper">
+            <div>
                 <button class="record-btn" title="开始/停止录音">
                     <svg class="record-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M12 14a3 3 0 003-3V5a3 3 0 10-6 0v6a3 3 0 003 3z"/>
@@ -21,11 +21,13 @@ export class RecordingButton {
                     </svg>
                 </button>
                 <span class="record-duration">00:00</span>
+                <span class="record-label"></span>
             </div>
         `;
 
         this._btn = this.container.querySelector('.record-btn');
         this._durationEl = this.container.querySelector('.record-duration');
+        this._labelEl = this.container.querySelector('.record-label');
 
         this._btn.addEventListener('click', () => this.toggleRecording());
     }
@@ -42,6 +44,7 @@ export class RecordingButton {
         this.recording = true;
         this._recordingStartTime = Date.now();
         this._btn.classList.add('recording-active');
+        if (this._labelEl) this._labelEl.textContent = '录音中';
         this._updateDuration();
         this._durationInterval = setInterval(() => this._updateDuration(), 200);
         if (this._onRecordingStart) this._onRecordingStart();
@@ -50,6 +53,7 @@ export class RecordingButton {
     _stopRecording() {
         this.recording = false;
         this._btn.classList.remove('recording-active');
+        if (this._labelEl) this._labelEl.textContent = '';
         clearInterval(this._durationInterval);
         this._durationInterval = null;
         if (this._onRecordingStop) this._onRecordingStop();
@@ -78,6 +82,7 @@ export class RecordingButton {
         clearInterval(this._durationInterval);
         this._durationInterval = null;
         this._durationEl.textContent = '00:00';
+        if (this._labelEl) this._labelEl.textContent = '';
     }
 
     // 事件回调注册

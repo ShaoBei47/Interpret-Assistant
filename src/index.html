@@ -18,8 +18,12 @@
 
             <section class="controls-panel">
                 <div id="recording-control"></div>
-                
+
                 <div id="audio-player-control"></div>
+            </section>
+
+            <section id="waveform-container" class="panel">
+                <canvas class="waveform-canvas" id="waveform-canvas"></canvas>
             </section>
 
             <section id="score-result-panel" class="panel hidden">
@@ -27,8 +31,15 @@
                 <div id="score-details"></div>
             </section>
         </main>
+
+        <footer>
+            <span>Interpret-Assistant</span>
+            <span class="footer-dot">·</span>
+            <span>英语影子跟读</span>
+        </footer>
     </div>
 
     <script type="module" src="../js/main.js"></script>
+    <script type="module" src="../src/ui/ParticleEffects.js"></script>
 </body>
 </html>
