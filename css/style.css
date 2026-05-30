@@ -468,6 +468,20 @@ header h1 {
     width: 100%;
 }
 
+.speed-select {
+    font-size: 0.75rem;
+    padding: 2px 4px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    outline: none;
+}
+.speed-select:hover {
+    border-color: var(--color-primary-light);
+}
+
 .player-btn {
     width: 42px;
     height: 42px;
@@ -840,4 +854,224 @@ footer {
 
     .player-time { min-width: 72px; font-size: 0.76rem; }
     .record-duration { font-size: 0.9rem; min-width: 44px; }
+}
+
+/* === 原文显示控制（影子跟读模式） === */
+.transcript-blurred .transcript-box {
+    filter: blur(6px);
+    user-select: none;
+    pointer-events: none;
+    transition: filter 0.35s ease;
+}
+
+.transcript-blurred .transcript-box:hover {
+    filter: blur(6px);
+}
+
+.transcript-control-row {
+    display: flex;
+    justify-content: center;
+    margin-top: -10px;
+    margin-bottom: 2px;
+}
+
+.transcript-toggle-btn {
+    font-size: 0.78rem;
+    padding: 4px 16px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    background: var(--color-surface);
+    color: var(--color-text-tertiary);
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.transcript-toggle-btn:hover {
+    border-color: var(--color-primary-light);
+    color: var(--color-primary);
+    background: var(--color-primary-bg);
+}
+
+/* === 开始练习按钮 & 自定义上传面板 === */
+.exercise-btn {
+    padding: 8px 22px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    border: none;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: opacity var(--transition), transform var(--transition);
+    white-space: nowrap;
+}
+
+.exercise-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.exercise-btn:active {
+    transform: translateY(0);
+}
+
+.exercise-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* === 自定义上传面板 === */
+.upload-panel {
+    padding: 0;
+}
+
+.upload-details {
+    padding: 12px 18px;
+}
+
+.upload-summary {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    user-select: none;
+    padding: 2px 0;
+}
+
+.upload-summary:hover {
+    color: var(--color-primary);
+}
+
+.upload-body {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.upload-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.upload-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    min-width: 72px;
+    padding-top: 6px;
+    white-space: nowrap;
+}
+
+.upload-file-input {
+    font-size: 0.85rem;
+    padding: 4px 0;
+    flex: 1;
+}
+
+.upload-file-name {
+    font-size: 0.82rem;
+    color: var(--color-text-tertiary);
+    padding-top: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+}
+
+.upload-textarea {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: 0.88rem;
+    color: var(--color-text);
+    resize: vertical;
+    min-height: 60px;
+    font-family: inherit;
+    line-height: 1.6;
+    outline: none;
+    transition: border-color var(--transition);
+}
+
+.upload-textarea:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.12);
+}
+
+.upload-actions {
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 4px;
+}
+
+.upload-btn {
+    padding: 7px 18px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.upload-btn:hover:not(:disabled) {
+    border-color: var(--color-primary-light);
+    color: var(--color-primary);
+}
+
+.upload-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.recognize-progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--color-border);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+.recognize-progress-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light));
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+.recognize-progress-fill.indeterminate {
+    width: 30%;
+    animation: progress-indeterminate 1.5s ease-in-out infinite;
+}
+@keyframes progress-indeterminate {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(400%); }
+}
+.recognize-progress-label {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+    margin-top: 4px;
+    display: block;
+}
+.progress-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+}
+
+@media (max-width: 480px) {
+    .upload-row {
+        flex-direction: column;
+    }
+    .upload-label {
+        min-width: auto;
+    }
+    .upload-textarea {
+        width: 100%;
+    }
 }

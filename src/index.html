@@ -13,8 +13,41 @@
             <div id="status-bar"></div>
         </header>
 
+        <section id="custom-upload-section" class="panel upload-panel">
+            <details class="upload-details">
+                <summary class="upload-summary">📁 上传自己的音频</summary>
+                <div class="upload-body">
+                    <div class="upload-row">
+                        <label class="upload-label">音频文件：</label>
+                        <input type="file" id="audio-file-input" class="upload-file-input" accept="audio/*">
+                        <span id="upload-file-name" class="upload-file-name"></span>
+                    </div>
+                    <div class="upload-row">
+                        <label class="upload-label">原文文本：</label>
+                        <textarea id="custom-transcript-input" class="upload-textarea" rows="3" placeholder="选择音频后点击「识别原文文本」自动识别，也可手动输入"></textarea>
+                    </div>
+                    <div class="upload-row upload-actions">
+                        <button id="recognize-audio-btn" class="upload-btn" disabled>🎤 识别原文文本</button>
+                    </div>
+                    <div class="upload-row progress-row" id="recognize-progress-row" style="display:none">
+                        <div class="recognize-progress-bar">
+                            <div class="recognize-progress-fill" id="recognize-progress-fill"></div>
+                        </div>
+                        <span class="recognize-progress-label" id="recognize-progress-label">加载模型...</span>
+                    </div>
+                    <div class="upload-row upload-actions">
+                        <button id="start-custom-practice-btn" class="exercise-btn" disabled>开始练习</button>
+                    </div>
+                </div>
+            </details>
+        </section>
+
         <main>
-            <section id="transcript-container" class="panel"></section>
+            <section id="transcript-container" class="panel transcript-blurred"></section>
+
+            <div class="transcript-control-row">
+                <button id="toggle-transcript-btn" class="transcript-toggle-btn">显示原文</button>
+            </div>
 
             <section class="controls-panel">
                 <div id="recording-control"></div>

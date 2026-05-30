@@ -85,6 +85,28 @@ export class RecordingButton {
         if (this._labelEl) this._labelEl.textContent = '';
     }
 
+    /**
+     * 由主应用调用，同步外部录音状态到按钮UI（自动跟读场景）
+     * @param {boolean} isRecording
+     */
+    syncState(isRecording) {
+        if (isRecording && !this.recording) {
+            this.recording = true;
+            this._recordingStartTime = Date.now();
+            this._btn.classList.add('recording-active');
+            if (this._labelEl) this._labelEl.textContent = '录音中';
+            this._updateDuration();
+            this._durationInterval = setInterval(() => this._updateDuration(), 200);
+        } else if (!isRecording && this.recording) {
+            this.recording = false;
+            this._btn.classList.remove('recording-active');
+            if (this._labelEl) this._labelEl.textContent = '';
+            clearInterval(this._durationInterval);
+            this._durationInterval = null;
+            this._durationEl.textContent = '00:00';
+        }
+    }
+
     // 事件回调注册
     onRecordingStart(callback) { this._onRecordingStart = callback; }
     onRecordingStop(callback) { this._onRecordingStop = callback; }

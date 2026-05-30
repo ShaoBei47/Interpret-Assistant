@@ -180,14 +180,23 @@ export class AudioManager {
     }
 
     /**
-     * 跳转到指定时间位置
-     * @param {number} time - 目标时间（秒）
+     * 跳转到指定时间位置（秒）
+     * @param {number} time - 目标时间
      */
     seekTo(time) {
         const audio = this._ensureAudioElement();
         if (isFinite(time) && time >= 0) {
             audio.currentTime = time;
         }
+    }
+
+    /**
+     * 设置播放倍速
+     * @param {number} rate - 倍速 (0.5 ~ 2.0)
+     */
+    setPlaybackRate(rate) {
+        const audio = this._ensureAudioElement();
+        audio.playbackRate = Math.max(0.25, Math.min(4, rate));
     }
 
     // ==================== 录音控制 ====================

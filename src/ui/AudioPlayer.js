@@ -14,11 +14,15 @@ export class AudioPlayer {
         this._onPlay = null;
         this._onPause = null;
         this._onSeek = null;
+        this._onSpeedChange = null;
         this._progressInterval = null;
         this.render();
     }
 
     render() {
+        this._speed = 1;
+        this._speeds = [0.5, 0.75, 1, 1.25, 1.5, 2];
+
         this.container.innerHTML = `
             <div class="audio-player-ui">
                 <button class="player-btn play-btn" title="播放/暂停">▶</button>
@@ -27,6 +31,9 @@ export class AudioPlayer {
                     <span class="player-time">00:00 / 00:00</span>
                 </div>
                 <button class="player-btn stop-btn" title="停止">■</button>
+                <select class="speed-select" title="播放倍速">
+                    ${this._speeds.map(s => `<option value="${s}" ${s === 1 ? 'selected' : ''}>${s}x</option>`).join('')}
+                </select>
             </div>
         `;
 
@@ -34,10 +41,12 @@ export class AudioPlayer {
         this._stopBtn = this.container.querySelector('.stop-btn');
         this._slider = this.container.querySelector('.progress-slider');
         this._timeDisplay = this.container.querySelector('.player-time');
+        this._speedSelect = this.container.querySelector('.speed-select');
 
         this._playBtn.addEventListener('click', () => this._handlePlayPause());
         this._stopBtn.addEventListener('click', () => this.stop());
         this._slider.addEventListener('input', () => this._handleSeek());
+        this._speedSelect.addEventListener('change', () => this._handleSpeedChange());
     }
 
     // --- 内部UI更新 ---
@@ -133,6 +142,12 @@ export class AudioPlayer {
         if (this._onEnded) this._onEnded();
     }
 
+    _handleSpeedChange() {
+        const rate = parseFloat(this._speedSelect.value);
+        this._speed = rate;
+        if (this._onSpeedChange) this._onSpeedChange(rate);
+    }
+
     seekTo(time) {
         this._currentTime = time;
         this._updateTimeDisplay();
@@ -147,4 +162,5 @@ export class AudioPlayer {
     onPlay(callback) { this._onPlay = callback; }
     onPause(callback) { this._onPause = callback; }
     onSeek(callback) { this._onSeek = callback; }
+    onSpeedChange(callback) { this._onSpeedChange = callback; }
 }
